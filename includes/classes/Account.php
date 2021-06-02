@@ -18,14 +18,34 @@ class Account
         $this->validateEmails($em, $em2);
         $this->validatePasswords($pw, $pw2);
 
-        if(empty($this->errorArray)) {
+        if (empty($this->errorArray)) {
             return $this->insertUserDetails($fn, $ln, $un, $em, $pw);
         }
 
         return false;
     }
 
-    private function insertUserDetails($fn, $ln, $un, $em, $pw) {
+    public function login($un, $pw)
+    {
+        $pw = hash("sha512", $pw);
+
+        $query = $this->con->prepare("SELECT * FROM users WHERE username=:un AND password=:pw");
+
+        $query->bindValue(":un", $un);
+        $query->bindValue(":pw", $pw);
+
+        $query->execute();
+
+        if ($query->rowCount() == 1) {
+            return true;
+        }
+
+        array_push($this->errorArray, Constants::$loginFailed);
+        return false;
+    }
+
+    private function insertUserDetails($fn, $ln, $un, $em, $pw)
+    {
         // Hashing Password
         $pw = hash("sha512", $pw);
 
@@ -97,7 +117,8 @@ class Account
         }
     }
 
-    private function validatePasswords($pw, $pw2) {
+    private function validatePasswords($pw, $pw2)
+    {
         if ($pw != $pw2) {
             array_push($this->errorArray, Constants::$passwordsDontMatch);
             return;

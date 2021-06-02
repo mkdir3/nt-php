@@ -18,10 +18,20 @@ if (isset($_POST["submitButton"])) {
 
     $success = $account->register($firstName, $lastName, $username, $email, $email2, $password, $password2);
 
-    // If registering is ok, redirect
-    if($success) {
+
+    if ($success) {
         // Store session
+        $_SESSION["userLoggedIn"] = $username;
+        // If registering is ok, redirect
         header("location: index.php");
+    }
+}
+
+// Remembering the last value emmitted
+function getInputValue($name)
+{
+    if (isset($_POST[$name])) {
+        echo $_POST[$name];
     }
 }
 
@@ -49,23 +59,23 @@ if (isset($_POST["submitButton"])) {
 
             <form action="" method="POST">
 
-                <input type="text" name="firstName" placeholder="First Name" required>
+                <input type="text" name="firstName" placeholder="First Name" value="<?php getInputValue("firstName") ?>" required>
                 <?php
                 echo $account->getError(Constants::$firstNameCharacters);
                 ?>
-                <input type="text" name="lastName" placeholder="Last Name" required>
+                <input type="text" name="lastName" placeholder="Last Name" value="<?php getInputValue("lastName") ?>" required>
                 <?php
                 echo $account->getError(Constants::$lastNameCharacters);
                 ?>
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="username" placeholder="Username" value="<?php getInputValue("username") ?>" required>
                 <?php
                 echo $account->getError(Constants::$usernameCharacters);
                 ?>
                 <?php
                 echo $account->getError(Constants::$usernameTaken);
                 ?>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="email" name="email2" placeholder="Confirm Email" required>
+                <input type="email" name="email" placeholder="Email" value="<?php getInputValue("email") ?>" required>
+                <input type="email" name="email2" placeholder="Confirm Email" value="<?php getInputValue("email2") ?>" required>
                 <?php
                 echo $account->getError(Constants::$emailsDontMatch);
                 ?>

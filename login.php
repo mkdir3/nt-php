@@ -1,5 +1,33 @@
 <?php
+require_once("includes/config.php");
+require_once("includes/classes/FormSanitizer.php");
+require_once("includes/classes/Constants.php");
+require_once("includes/classes/Account.php");
 
+$account = new Account($con);
+
+if (isset($_POST["submitButton"])) {
+    $username = FormSanitizer::sanitizeFormUsername($_POST["username"]);
+    $password = FormSanitizer::sanitizeFormPassword($_POST["password"]);
+
+    $success = $account->login($username, $password);
+
+
+    if ($success) {
+        // Store session
+        $_SESSION["userLoggedIn"] = $username;
+        // If registering is ok, redirect
+        header("location: index.php");
+    }
+}
+
+// Remembering the last value emmitted
+function getInputValue($name)
+{
+    if(isset($_POST[$name])) {
+        echo $_POST[$name];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,8 +52,11 @@
 
             <form action="" method="POST">
 
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="username" placeholder="Username" value="<?php getInputValue("username") ?>" required>
                 <input type="password" name="password" placeholder="Password" required>
+                <?php
+                echo $account->getError(Constants::$loginFailed);
+                ?>
                 <input type="submit" name="submitButton" value="Submit">
 
             </form>
